@@ -6,8 +6,10 @@ import React from "react";
 
 import {
   Button,
+  Card,
   Container,
   Form,
+  Image,
   ProgressBar,
   Row,
   Stack,
@@ -21,6 +23,7 @@ interface State {
   videoProgress: number | null;
   videoId: string;
   textquery: string;
+  textqueryResult: any;
 }
 
 class App extends React.Component<{}, State> {
@@ -30,14 +33,23 @@ class App extends React.Component<{}, State> {
       selectedFile: null,
       processingState: "No Video Assigned",
       videoProgress: null,
-      videoId: "",
+      videoId: "ddee7af8f2188f7fc975f0dba5f177e1",
       textquery: "",
+      textqueryResult: null,
     };
   }
 
   onChangeHandler = (event: any) => {
     this.setState({
       selectedFile: event.target.files[0],
+    });
+  };
+
+  updateTextQueryValue = (event: any) => {
+    const val = event.target.value;
+    console.log(val);
+    this.setState({
+      textquery: val,
     });
   };
 
@@ -104,6 +116,9 @@ class App extends React.Component<{}, State> {
     });
     if (res.status === 200) {
       console.log(res.data);
+      this.setState({
+        textqueryResult: res.data,
+      });
     }
   };
 
@@ -111,22 +126,6 @@ class App extends React.Component<{}, State> {
     return (
       <Container>
         <Stack gap={3}>
-          <Form>
-            <Form.Group className="mb-3" controlId="formTextquery">
-              <Form.Label>What do you want to find?</Form.Label>
-              <Form.Control type="email" placeholder="e.g. Dog" />
-            </Form.Group>
-
-            <Form.Group className="mb-3" controlId="modelname">
-              <Form.Label>Model Name</Form.Label>
-              <Form.Control type="model" placeholder="e.g. VIT B/32" />
-            </Form.Group>
-
-            <Button variant="primary" type="submit">
-              Submit
-            </Button>
-          </Form>
-
           <Row>
             <div className="form-group files">
               <Form>
@@ -158,6 +157,56 @@ class App extends React.Component<{}, State> {
               <strong>{this.state.processingState}</strong>
             </div>
           </Stack>
+          <Form>
+            <Form.Group className="mb-3" controlId="formTextquery">
+              <Form.Label>What do you want to find?</Form.Label>
+              <Form.Control
+                placeholder={this.state.textquery}
+                onChange={this.updateTextQueryValue}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="modelname">
+              <Form.Label>Model Name</Form.Label>
+              <Form.Control placeholder="e.g. VIT B/32" />
+            </Form.Group>
+
+            <Button variant="primary" onClick={this.onTextQueryHandler}>
+              Submit
+            </Button>
+          </Form>
+          <Container className="col-md-9 mx-auto">
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "wrap",
+              }}
+            >
+              {this.state.textqueryResult &&
+                this.state.textqueryResult.map((item: any) => {
+                  const score = item[0];
+                  const scoreStr = score.toFixed(2);
+
+                  const time = item[1];
+                  const timeStr = time.toFixed(2) + "s";
+
+                  const imgBase64Raw = item[2];
+                  return (
+                    <Card className="col-md-3" key={item[0]}>
+                      <Card.Img
+                        variant="top"
+                        src={`data:image/png;base64,${imgBase64Raw}`}
+                      />
+                      <Card.Body>
+                        <Card.Text>Score: {scoreStr}</Card.Text>
+                        <Card.Text>Time: {timeStr}</Card.Text>
+                      </Card.Body>
+                    </Card>
+                  );
+                })}
+            </div>
+          </Container>
         </Stack>
       </Container>
     );

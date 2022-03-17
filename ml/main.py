@@ -37,4 +37,4 @@ def process_video_into_semvectors(videoId: str, modelname: Optional[str] = None)
 def text_similarity(videoId: str, textquery: str):
     score = simscore(videoId, textquery)
     print(score)
-    return {"Hello": "World"}
+    return score

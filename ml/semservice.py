@@ -1,5 +1,6 @@
+from io import BytesIO
 import os
-
+import base64
 import cv2
 import numpy as np
 import torch
@@ -25,6 +26,7 @@ def semantic_process_video(video_id: str, model_name: str = "ViT-B/32"):
     # load video
     vids = cv2.VideoCapture(vidpath)
     vid_load_success, image = vids.read()
+    fps = vids.get(cv2.CAP_PROP_FPS)
 
     if not vid_load_success:
         print("Failed to load video")
@@ -34,11 +36,21 @@ def semantic_process_video(video_id: str, model_name: str = "ViT-B/32"):
     diff_enough = True
 
     imgset = []
+    timepoint = []
+    smallimgbyte = []
     while vid_load_success:
         if diff_enough:
             imname = f"./tmp/{video_id}_frame{count}.jpg"
             cv2.imwrite(imname, image)
             imgset.append(imname)
+            timepoint.append(count / fps)
+            smallimg = cv2.resize(image, (256, 256))
+            smallimg = Image.fromarray(smallimg)
+            # make it into Base64 image
+            buffered = BytesIO()
+            smallimg.save(buffered, format="JPEG")
+            img_str = base64.b64encode(buffered.getvalue())
+            smallimgbyte.append(img_str)
 
         prv_img = image
         vid_load_success, image = vids.read()
@@ -49,7 +61,7 @@ def semantic_process_video(video_id: str, model_name: str = "ViT-B/32"):
         if count > 0 and vid_load_success:
             diff = np.mean(np.abs(prv_img - image))
             print(diff)
-            if diff < 100000000:
+            if diff < 10:
                 diff_enough = False
 
         count += 1
@@ -69,7 +81,7 @@ def semantic_process_video(video_id: str, model_name: str = "ViT-B/32"):
         out = model.encode_image(img_obj)
 
     out = out.cpu()
-    torch.save(out, "./tmpvec/" + video_id + ".pt")
+    torch.save([out, timepoint, smallimgbyte], "./tmpvec/" + video_id + ".pt")
 
     # remove tmp files
     for f in imgset:
@@ -83,7 +95,7 @@ def simscore(video_id: str, text_qry: str, model_name: str = "ViT-B/32"):
     # load text query
     # compute similarity score
     # return similarity score
-    vidvec = torch.load("./tmpvec/" + video_id + ".pt")
+    vidvec, timepoint, smallimgbyte = torch.load("./tmpvec/" + video_id + ".pt")
 
     model, preprocess = clip.load(model_name, device=device)
     text_tok = clip.tokenize(text_qry).to(device)
@@ -91,6 +103,11 @@ def simscore(video_id: str, text_qry: str, model_name: str = "ViT-B/32"):
     with torch.no_grad():
         out = model.encode_text(text_tok)
 
-    out = out.cpu()
+    out = out.cpu().reshape(-1, 1)
+    print(out.shape, vidvec.shape)
 
-    return torch.dot(out, vidvec).cpu().numpy()
+    score = (vidvec @ out).cpu().flatten().tolist()
+    score_time_img = list(zip(score, timepoint, smallimgbyte))
+    score_time_img.sort(key=lambda x: x[0], reverse=True)
+
+    return score_time_img[:10]
