@@ -24,6 +24,6 @@ export class StorageController {
     console.log(file);
     // write file to local storage './tmp/uploads'
 
-    return { filename: file.filename }; // Needs Encryption + timestamp.
+    return { videoId: file.filename }; // Needs Encryption + timestamp.
   }
 }
