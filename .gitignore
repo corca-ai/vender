@@ -7,7 +7,9 @@
 /front/build
 /files
 
-
+*__pycache__*
+/ml/tmp
+/ml/tmpvec
 
 
 
