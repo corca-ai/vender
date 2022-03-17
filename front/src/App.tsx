@@ -2,8 +2,8 @@ import axios from "axios";
 import React from "react";
 // import NoticeWriteComponent from "./components/NoticeWriteComponent._tsx";
 // import Uploader from "./components/UploadFiles._tsx";
-//css
-
+import Logo from "./vender.svg";
+// solved from https://github.com/facebook/create-react-app/issues/11770 here. svg is difficult..
 import {
   Button,
   Card,
@@ -124,11 +124,17 @@ class App extends React.Component<{}, State> {
 
   render() {
     return (
-      <Container>
-        <Stack gap={3}>
-          <Row>
-            <div className="form-group files">
+      <Stack className="col-xs-6 col-lg-6 mx-auto" gap={4}>
+        <Row>
+          <Image src={Logo} />
+        </Row>
+
+        <Card>
+          <Card.Header as="h2">Upload Your Video</Card.Header>
+          <Card.Body>
+            <Stack gap={2}>
               <Form>
+                <Form.Label></Form.Label>
                 <Form.Group controlId="formFileLg" className="mb-12">
                   <Form.Control
                     type="file"
@@ -137,63 +143,69 @@ class App extends React.Component<{}, State> {
                   />
                 </Form.Group>
               </Form>
-            </div>
-          </Row>
-          <Stack className="col-md-5 mx-auto">
-            <Button variant="primary" onClick={this.onClickHandler}>
-              Upload
-            </Button>
 
-            {/* Video Processing State */}
-            {this.state.videoProgress && (
-              <ProgressBar
-                now={this.state.videoProgress}
-                label={`${this.state.videoProgress}%`}
-                variant="secondary"
-              />
-            )}
+              <Button variant="primary" onClick={this.onClickHandler}>
+                Upload
+              </Button>
 
-            <div className="alert alert-info">
-              <strong>{this.state.processingState}</strong>
-            </div>
-          </Stack>
-          <Form>
-            <Form.Group className="mb-3" controlId="formTextquery">
-              <Form.Label>What do you want to find?</Form.Label>
-              <Form.Control
-                placeholder={this.state.textquery}
-                onChange={this.updateTextQueryValue}
-              />
-            </Form.Group>
+              {/* Video Processing State */}
+              {this.state.videoProgress && (
+                <ProgressBar
+                  now={this.state.videoProgress}
+                  label={`${this.state.videoProgress}%`}
+                  variant="secondary"
+                />
+              )}
 
-            <Form.Group className="mb-3" controlId="modelname">
-              <Form.Label>Model Name</Form.Label>
-              <Form.Control placeholder="e.g. VIT B/32" />
-            </Form.Group>
+              <div className="alert alert-info">
+                <strong>{this.state.processingState}</strong>
+              </div>
+            </Stack>
+          </Card.Body>
+        </Card>
+        <Card>
+          <Card.Header as="h2">Request a Query</Card.Header>
+          <Card.Body>
+            <Form>
+              <Form.Group className="mb-3" controlId="formTextquery">
+                <Form.Label>What do you want to find?</Form.Label>
+                <Form.Control
+                  placeholder={this.state.textquery}
+                  onChange={this.updateTextQueryValue}
+                />
+              </Form.Group>
 
-            <Button variant="primary" onClick={this.onTextQueryHandler}>
-              Submit
-            </Button>
-          </Form>
-          <Container className="col-md-9 mx-auto">
+              <Form.Group className="mb-3" controlId="modelname">
+                <Form.Label>Model Name</Form.Label>
+                <Form.Control placeholder="e.g. VIT B/32" />
+              </Form.Group>
+
+              <Button variant="primary" onClick={this.onTextQueryHandler}>
+                Submit
+              </Button>
+            </Form>
+
             <div
               style={{
                 display: "flex",
                 flexDirection: "row",
                 flexWrap: "wrap",
+                justifyContent: "left",
               }}
             >
               {this.state.textqueryResult &&
                 this.state.textqueryResult.map((item: any) => {
                   const score = item[0];
                   const scoreStr = score.toFixed(2);
-
                   const time = item[1];
                   const timeStr = time.toFixed(2) + "s";
-
                   const imgBase64Raw = item[2];
                   return (
-                    <Card className="col-md-3" key={item[0]}>
+                    <Card
+                      className="col-xs-2 mb-2"
+                      key={item[0]}
+                      style={{ margin: "auto" }}
+                    >
                       <Card.Img
                         variant="top"
                         src={`data:image/png;base64,${imgBase64Raw}`}
@@ -206,9 +218,9 @@ class App extends React.Component<{}, State> {
                   );
                 })}
             </div>
-          </Container>
-        </Stack>
-      </Container>
+          </Card.Body>
+        </Card>
+      </Stack>
     );
   }
 }
