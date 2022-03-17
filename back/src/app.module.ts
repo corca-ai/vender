@@ -1,7 +1,14 @@
 import { Module } from '@nestjs/common';
-import { ViduploadModule } from './vidupload/vidupload.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { StorageModule } from './core/storage/storage.module';
 
 @Module({
-  imports: [ViduploadModule],
+  imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+    }),
+    StorageModule,
+  ],
 })
 export class AppModule {}
