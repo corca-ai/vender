@@ -9,7 +9,7 @@ from semservice import semantic_process_video, simscore
 app = FastAPI()
 
 origins = [
-    "http://localhost:3000",
+    "http://211.58.102.6:8002",
 ]
 
 app.add_middleware(

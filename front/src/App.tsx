@@ -33,7 +33,7 @@ class App extends React.Component<{}, State> {
       selectedFile: null,
       processingState: "No Video Assigned",
       videoProgress: null,
-      videoId: "ddee7af8f2188f7fc975f0dba5f177e1",
+      videoId: "",
       textquery: "",
       textqueryResult: null,
     };
@@ -77,7 +77,8 @@ class App extends React.Component<{}, State> {
 
     if (res.status === 201) {
       this.setState({
-        processingState: "Video Uploaded, Processing...",
+        processingState:
+          "Video Uploaded, Processing... This will take some time...",
       });
 
       const videoId = res.data.videoId;
@@ -108,6 +109,9 @@ class App extends React.Component<{}, State> {
   };
 
   onTextQueryHandler = async () => {
+    this.setState({
+      textqueryResult: null,
+    });
     const res = await axiosAnalyzeVideo.get("/textsim", {
       params: {
         videoId: this.state.videoId,
@@ -133,6 +137,7 @@ class App extends React.Component<{}, State> {
           <Card.Header as="h2">Upload Your Video</Card.Header>
           <Card.Body>
             <Stack gap={2}>
+              <h4>(Over 5 minute will decrease the sampling rate)</h4>
               <Form>
                 <Form.Label></Form.Label>
                 <Form.Group controlId="formFileLg" className="mb-12">
@@ -203,7 +208,7 @@ class App extends React.Component<{}, State> {
                   return (
                     <Card
                       className="col-xs-2 mb-2"
-                      key={item[0]}
+                      key={time}
                       style={{ margin: "auto" }}
                     >
                       <Card.Img
