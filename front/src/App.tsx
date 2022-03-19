@@ -5,6 +5,7 @@ import React from "react";
 import Logo from "./vender.svg";
 // solved from https://github.com/facebook/create-react-app/issues/11770 here. svg is difficult..
 import {
+  Alert,
   Button,
   Card,
   Container,
@@ -78,7 +79,7 @@ class App extends React.Component<{}, State> {
     if (res.status === 201) {
       this.setState({
         processingState:
-          "Video Uploaded, Processing... This will take some time...",
+          "Video Uploaded, Processing... This can take upto few minutes. Please wait.",
       });
 
       const videoId = res.data.videoId;
@@ -112,6 +113,12 @@ class App extends React.Component<{}, State> {
     this.setState({
       textqueryResult: null,
     });
+
+    if (this.state.textquery.length === 0) {
+      alert("검색 단어를 입력해 주세요");
+      return;
+    }
+
     const res = await axiosAnalyzeVideo.get("/textsim", {
       params: {
         videoId: this.state.videoId,
@@ -129,15 +136,30 @@ class App extends React.Component<{}, State> {
   render() {
     return (
       <Stack className="col-xs-6 col-lg-6 mx-auto" gap={4}>
-        <Row>
+        <Row style={{ margin: "2rem" }}>
           <Image src={Logo} />
         </Row>
 
+        <Alert variant="primary">
+          <Alert.Heading>Welcome to VENDRE</Alert.Heading>
+          <p>
+            VENDRE is a tool that allows CTRL + F in videos. It uses
+            state-of-the-art multi-modal deep learning model to understand what
+            you want to search for in a video.
+          </p>
+        </Alert>
+        <Alert variant="danger">
+          <p className="mb-0">
+            DO NOTE THAT THIS IS A PROTOTYPE. YOUR DATA SENT TO OUR SERVER IS
+            NOT GURANTEED TO BE SAFE NOR PRIVATE. USE THIS APPLICATION WITH YOUR
+            OWN RISK.
+          </p>
+        </Alert>
         <Card>
           <Card.Header as="h2">Upload Your Video</Card.Header>
           <Card.Body>
             <Stack gap={2}>
-              <h4>(Over 5 minute will decrease the sampling rate)</h4>
+              <h5>(Video over 5 minute will decrease the sampling rate)</h5>
               <Form>
                 <Form.Label></Form.Label>
                 <Form.Group controlId="formFileLg" className="mb-12">
@@ -169,19 +191,19 @@ class App extends React.Component<{}, State> {
           </Card.Body>
         </Card>
         <Card>
-          <Card.Header as="h2">Request a Query</Card.Header>
+          <Card.Header as="h2">Search for...</Card.Header>
           <Card.Body>
             <Form>
               <Form.Group className="mb-3" controlId="formTextquery">
                 <Form.Label>What do you want to find?</Form.Label>
                 <Form.Control
-                  placeholder={this.state.textquery}
+                  placeholder={"e.g. Cat"}
                   onChange={this.updateTextQueryValue}
                 />
               </Form.Group>
 
               <Form.Group className="mb-3" controlId="modelname">
-                <Form.Label>Model Name</Form.Label>
+                <Form.Label>Model Name (Optional)</Form.Label>
                 <Form.Control placeholder="e.g. VIT B/32" />
               </Form.Group>
 

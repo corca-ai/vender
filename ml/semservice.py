@@ -40,7 +40,10 @@ def semantic_process_video(video_id: str, model_name: str = "ViT-B/32"):
     smallimgbyte = []
 
     total_frames = int(vids.get(cv2.CAP_PROP_FRAME_COUNT))
-    for fno in range(0, total_frames, int(float(fps) / 2)):
+    sample_rate = max(int(total_frames / 500), 15)
+    print(sample_rate, total_frames, fps)
+
+    for fno in range(0, total_frames, sample_rate):
         vids.set(cv2.CAP_PROP_POS_FRAMES, fno)
 
         if diff_enough:
