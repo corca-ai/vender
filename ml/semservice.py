@@ -54,7 +54,12 @@ def semantic_process_video(video_id: str, model_name: str = "ViT-B/32"):
             imgset.append(imname)
             timepoint.append(fno / fps)
 
+            # Image from opencv is in BGR format
+            # PIL image is in RGB format
+            # So we need to convert it
+            smallimg = cv2.cvtColor(smallimg, cv2.COLOR_BGR2RGB)
             smallimg = Image.fromarray(smallimg)
+
             # make it into Base64 image
             buffered = BytesIO()
             smallimg.save(buffered, format="JPEG")
@@ -133,8 +138,8 @@ def semantic_process_video(video_id: str, model_name: str = "ViT-B/32"):
     torch.save([out, timepoint, smallimgbyte], "./tmpvec/" + video_id + ".pt")
 
     # remove tmp files
-    for f in imgset:
-        os.remove(f)
+    for img in imgset:
+        os.remove(img)
 
     return True
 

@@ -155,6 +155,9 @@ class App extends React.Component<{}, State> {
             OWN RISK.
           </p>
         </Alert>
+        <Alert variant="danger">
+          <p className="mb-0">THIS IS NOT AN OFFICIAL PRODUCT OF CORCA INC.</p>
+        </Alert>
         <Card>
           <Card.Header as="h2">Upload Your Video</Card.Header>
           <Card.Body>
@@ -247,6 +250,7 @@ class App extends React.Component<{}, State> {
             </div>
           </Card.Body>
         </Card>
+        <p></p>
       </Stack>
     );
   }
